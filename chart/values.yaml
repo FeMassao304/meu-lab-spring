@@ -1,6 +1,6 @@
 replicaCount: 1
 image:
-  repository: ghcr.io/FeMassao304/meu-lab-spring
+  repository: ghcr.io/femassao304/meu-lab-spring
   tag: "latest"
 service:
   port: 8080
