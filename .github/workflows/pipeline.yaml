@@ -1,0 +1,49 @@
+name: CI/CD Pipeline Spring Boot
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Clonar repositório
+        uses: actions/checkout@v4
+
+      - name: Validar sintaxe do Helm
+        run: helm lint ./chart
+
+      - name: Login no GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Converter nome do repositório para minúsculas
+        run: echo "REPO_LOWERCASE=$(echo ${{ github.repository }} | tr ' [:upper:]' '[;lower;]')" >> $GITHUB_ENV
+
+      - name: Build e Push do Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ env.REPO_LOWERCASE }}:${{ github.sha }}
+
+      - name: Criar Cluster Kubernetes (Kind)
+        uses: helm/kind-action@v1.10.0
+
+      - name: Fazer o Deploy com Helm
+        run: |
+          helm upgrade --install release-spring ./chart \
+          --set image.repository = ghcr.io/${{ env.REPO_LOWERCASE }} \ 
+          --set image.tag=${{ github.sha}} \
+          --wait
+
+      - name: Verificar cluster
+        run: kubectl get pods,svc
