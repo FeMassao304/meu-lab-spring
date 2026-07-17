@@ -39,11 +39,7 @@ jobs:
         uses: helm/kind-action@v1.10.0
 
       - name: Fazer o Deploy com Helm
-        run: |
-          helm upgrade --install release-spring ./chart \
-          --set image.repository = ghcr.io/${{ env.REPO_LOWERCASE }} \ 
-          --set image.tag=${{ github.sha}} \
-          --wait
+        run: helm upgrade --install release-spring ./chart --set image.repository = ghcr.io/femassao304/meu-lab-spring --set image.tag=${{ github.sha }} --wait
 
       - name: Verificar cluster
         run: kubectl get pods,svc
