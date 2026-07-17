@@ -7,13 +7,13 @@ spec:
   selector:
     matchLabels:
       app: {{ .Chart.Name }}
-    template:
-      metadata:
-        labels:
-          app: {{ .Chart.Name }}
-      spec:
-        containers:
-          - name: {{ .Chart.Name }}
-            image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-            ports:
-              - containerPort: {{ .Values.service.port }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.service.port }}
